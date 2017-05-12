@@ -89,7 +89,7 @@ class BreakfastHandler(telepot.helper.ChatHandler):
 
     @no_args
     def _cmd_stats_last(self):
-        last = max(statistics.keys())
+        last = last_stat()
         yes = [describe_user(u) for u in statistics[last]['yes']]
         no = [describe_user(u) for u in statistics[last]['no']]
 
@@ -201,8 +201,12 @@ def notify_all():
             handler.notify(now)
 
 
+def last_stat():
+    return max(map(int, filter(lambda x: not x.endswith('result'), statistics.keys())))
+
+
 def attend_all():
-    last = max(statistics.keys())
+    last = last_stat()
     statistics[str(last) + '_result'] = {'yes': [], 'no': []}
     statistics.save()
     for chat, handler in handlers.items():
