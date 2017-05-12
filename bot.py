@@ -6,7 +6,7 @@ from telepot.delegate import include_callback_query_chat_id, pave_event_space, p
 from telepot.helper import Editor
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 
-from commands import make_help
+from commands import make_help, make_commands
 from utils import PersistedDict
 from scheduler import Event
 
@@ -37,7 +37,6 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         self.last_date = None
         global handlers
         handlers[self.id] = self
-        self.commands = {'disable': self._cmd_disable}
         self.editor = None
         self.msg_id = None
         if self.id not in users:
@@ -45,6 +44,8 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         elif 'msg_id' in users[self.id]:
             self.msg_id = users[self.id]['msg_id']
             self.editor = Editor(self.bot, self.msg_id)
+
+        self.commands = make_commands(self, self._is_admin())
 
     def _cmd_disable(self):
         users[self.id]['disabled'] = True
@@ -113,7 +114,8 @@ class BreakfastHandler(telepot.helper.ChatHandler):
                         self.commands[cmd]()
                     else:
                         self._cmd_help()
-                        # self.sender.sendMessage(str(statistics))
+                else:
+                    self._cmd_help()
 
 
 def notify_all():
@@ -131,9 +133,6 @@ def main():
             pave_event_space())(
             per_chat_id(types=['private']), create_open, BreakfastHandler, timeout=10000),
     ])
-    notifications_thread = Thread(target=notify_all)
-    notifications_thread.daemon = True
-    notifications_thread.start()
     for user in users:
         bot.handle({'chat': {'type': 'private', 'id': int(user)}, 'message_id': None, 'new_chat_member': None})
     notification = Event(lambda: notification_cron, notify_all)
