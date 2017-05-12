@@ -35,6 +35,13 @@ def describe_user(uid):
         return '????????'
 
 
+def no_args(method):
+    def tmp(*args, **kwargs):
+        return method()
+
+    return tmp
+
+
 class BreakfastHandler(telepot.helper.ChatHandler):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[
         InlineKeyboardButton(text='Yes', callback_data='yes'),
@@ -56,13 +63,6 @@ class BreakfastHandler(telepot.helper.ChatHandler):
             self.editor = Editor(self.bot, self.msg_id)
 
         self.commands = make_commands(self, self._is_admin())
-
-    @classmethod
-    def no_args(cls, method):
-        def tmp(*args, **kwargs):
-            return method()
-
-        return tmp
 
     @no_args
     def _cmd_disable(self):
