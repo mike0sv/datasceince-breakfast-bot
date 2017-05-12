@@ -23,6 +23,7 @@ handlers = dict()
 
 # notification_cron = '30 21 * * 1'
 notification_cron = '30 21 * * *'
+result_cron = '0 13 * * *'
 
 
 def describe_user(uid):
@@ -56,10 +57,12 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         handlers[self.id] = self
         self.editor = None
         self.msg_id = None
+        self.question = None
         if self.id not in users:
             self.register_user()
         elif 'msg_id' in users[self.id]:
             self.msg_id = users[self.id]['msg_id']
+            self.question = users[self.id]['q']
             self.editor = Editor(self.bot, self.msg_id)
 
         self.commands = make_commands(self, self._is_admin())
@@ -89,7 +92,15 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         last = max(statistics.keys())
         yes = '\n'.join([describe_user(u) for u in statistics[last]['yes']])
         no = '\n'.join([describe_user(u) for u in statistics[last]['no']])
-        self.sender.sendMessage('Придут:\n{}\nНе придут:{}'.format(yes, no))
+
+        text = 'Придут:\n{}\nНе придут:{}'.format(yes, no)
+        if last + '_result' in statistics:
+            last += '_result'
+            yes = '\n'.join([describe_user(u) for u in statistics[last]['yes']])
+            no = '\n'.join([describe_user(u) for u in statistics[last]['no']])
+            text += '\n\nПришли:\n{}\nНе пришли:{}'.format(yes, no)
+
+        self.sender.sendMessage(text)
 
     def _cmd_make_admin(self, text):
         try:
@@ -118,6 +129,19 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         self.editor = Editor(self.bot, sent)
         self.msg_id = telepot.message_identifier(sent)
         users[self.id]['msg_id'] = sent
+        users[self.id]['q'] = 'n'
+        self.question = 'n'
+        users.save()
+
+    def attend(self, date):
+        self._cancel_last()
+        self.last_date = date
+        sent = self.sender.sendMessage('Пришел на завтрак?', reply_markup=self.keyboard)
+        self.editor = Editor(self.bot, sent)
+        self.msg_id = telepot.message_identifier(sent)
+        users[self.id]['msg_id'] = sent
+        users[self.id]['q'] = 'a'
+        self.question = 'a'
         users.save()
 
     def _cancel_last(self):
@@ -125,6 +149,7 @@ class BreakfastHandler(telepot.helper.ChatHandler):
             self.editor.editMessageReplyMarkup(reply_markup=None)
             self.editor = None
             self.msg_id = None
+            self.question = None
             users[self.id]['msg_id'] = None
             users.save()
 
@@ -133,7 +158,10 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         self.bot.answerCallbackQuery(query_id, text='Okay')
         self._cancel_last()
         users[self.id]['last_answer'] = query_data
-        statistics[self.last_date][query_data].append(self.id)
+        date = str(self.last_date)
+        if self.question == 'a':
+            date += '_result'
+        statistics[date][query_data].append(self.id)
         users.save()
         statistics.save()
 
@@ -165,6 +193,15 @@ def notify_all():
             handler.notify(now)
 
 
+def attend_all():
+    last = max(statistics.keys())
+    statistics[str(last) + '_result'] = {'yes': [], 'no': []}
+    statistics.save()
+    for chat, handler in handlers.items():
+        if chat in statistics[last]['yes']:
+            handler.attend(last)
+
+
 def main():
     bot = telepot.DelegatorBot(token, [
         include_callback_query_chat_id(
@@ -175,6 +212,8 @@ def main():
         bot.handle({'chat': {'type': 'private', 'id': int(user)}, 'message_id': None, 'new_chat_member': None})
     notification = Event(lambda: notification_cron, notify_all)
     notification.run(True)
+    attended = Event(lambda: result_cron, attend_all)
+    attended.run(True)
     bot.message_loop(run_forever=True)
 
 
