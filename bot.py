@@ -38,12 +38,11 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         global handlers
         handlers[self.id] = self
         self.commands = {'disable': self._cmd_disable}
+        self.editor = None
+        self.msg_id = None
         if self.id not in users:
             self.register_user()
-
-            self.editor = None
-            self.msg_id = None
-        else:
+        elif 'msg_id' in users[self.id]:
             self.msg_id = users[self.id]['msg_id']
             self.editor = Editor(self.bot, self.msg_id)
 
