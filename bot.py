@@ -1,5 +1,6 @@
-from threading import Thread
-from time import sleep, time
+import sys
+import traceback
+from time import time
 
 import telepot
 from telepot.delegate import include_callback_query_chat_id, pave_event_space, per_chat_id, create_open
@@ -7,8 +8,8 @@ from telepot.helper import Editor
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 
 from commands import make_help, make_commands
-from utils import PersistedDict
 from scheduler import Event
+from utils import PersistedDict
 
 with open('token') as token_file:
     token = token_file.read().strip()
@@ -22,7 +23,7 @@ statistics = PersistedDict('statistics.json')
 handlers = dict()
 
 # notification_cron = '30 21 * * 1'
-notification_cron = '30 21 * * *'
+notification_cron = '0 22 * * *'
 result_cron = '0 13 * * *'
 
 
@@ -181,22 +182,28 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         statistics.save()
 
     def on_message(self, msg):
-        if 'new_chat_member' in msg:
-            return
-            # pprint(msg)
-        if telepot.flavor(msg) == 'callback_query':
-            self.on_callback_query(msg)
-        else:
-            if 'text' in msg:
-                text = msg['text']
-                if text.startswith('/'):
-                    cmd = text.split(' ')[0][1:]
-                    if cmd in self.commands:
-                        self.commands[cmd](text)
+        try:
+            if 'new_chat_member' in msg:
+                return
+                # pprint(msg)
+            if telepot.flavor(msg) == 'callback_query':
+                self.on_callback_query(msg)
+            else:
+                if 'text' in msg:
+                    text = msg['text']
+                    if text.startswith('/'):
+                        cmd = text.split(' ')[0][1:]
+                        if cmd in self.commands:
+                            self.commands[cmd](text)
+                        else:
+                            self._cmd_help()
                     else:
                         self._cmd_help()
-                else:
-                    self._cmd_help()
+        except Exception as e:
+            if self._is_admin():
+                tp, exc, tb = sys.exc_info()
+                text = ''.join(traceback.format_exception(tp, exc, tb))
+                self.sender.sendMessage(text)
 
 
 def notify_all():

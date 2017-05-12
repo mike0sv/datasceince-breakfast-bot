@@ -1,10 +1,11 @@
 import datetime
 import time
+import sys
 from threading import Thread
 
 
 class Event:
-    def __init__(self, cron_provider, callback, timeout=59):
+    def __init__(self, cron_provider, callback, timeout=5):
         self.cron = cron_provider
         self.callback = callback
         self.timeout = timeout
@@ -22,7 +23,10 @@ class Event:
             if not self.last or self.last != now:
                 if all(map(self._check, zip(cron, now))):
                     self.last = now
-                    self.callback()
+                    try:
+                        self.callback()
+                    except:
+                        print(sys.exc_info())
 
             time.sleep(self.timeout)
 
