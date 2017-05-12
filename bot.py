@@ -57,27 +57,49 @@ class BreakfastHandler(telepot.helper.ChatHandler):
 
         self.commands = make_commands(self, self._is_admin())
 
+    @staticmethod
+    def no_args(method):
+        def tmp(*args, **kwargs):
+            return method()
+
+        return tmp
+
+    @no_args
     def _cmd_disable(self):
         users[self.id]['disabled'] = True
         users.save()
         self.sender.sendMessage('Нотификации выключены')
 
+    @no_args
     def _cmd_enable(self):
         users[self.id]['disabled'] = False
         users.save()
         self.sender.sendMessage('Нотификации включены')
 
+    @no_args
     def _cmd_stats(self):
         self.sender.sendMessage(str(statistics))
 
+    @no_args
     def _cmd_help(self):
         self.sender.sendMessage(make_help(self._is_admin()))
 
+    @no_args
     def _cmd_stats_last(self):
         last = max(statistics.keys())
         yes = '\n'.join([describe_user(u) for u in statistics[last]['yes']])
         no = '\n'.join([describe_user(u) for u in statistics[last]['no']])
         self.sender.sendMessage('Придут:\n{}\nНе придут:{}'.format(yes, no))
+
+    def _cmd_make_admin(self, text):
+        try:
+            other_id = int(text.split(' ')[1])
+            users[other_id]['admin'] = True
+            users.save()
+            other_chat = handlers[other_id]
+            other_chat.commands = make_commands(other_chat, True)
+        except:
+            self.sender.sendMessage('Not valid id')
 
     def _is_admin(self):
         return users[self.id]['admin']
@@ -127,7 +149,7 @@ class BreakfastHandler(telepot.helper.ChatHandler):
                 if text.startswith('/'):
                     cmd = text.split(' ')[0][1:]
                     if cmd in self.commands:
-                        self.commands[cmd]()
+                        self.commands[cmd](text)
                     else:
                         self._cmd_help()
                 else:

@@ -30,6 +30,7 @@ add_command('enable', '_cmd_enable', 'Включить нотификации')
 add_command('disable', '_cmd_disable', 'Выключить нотификации')
 add_command('stats_raw', '_cmd_stats', 'Показать статистику в json', True)
 add_command('stats', '_cmd_stats_last', 'Показать статистику', True)
+add_command('make_admin', '_cmd_make_admin', 'Сделать админом', True)
 
 
 def main():
