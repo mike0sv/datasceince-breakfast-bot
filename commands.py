@@ -23,7 +23,7 @@ def make_commands(chat, is_admin):
 
 
 def make_help(is_admin):
-    return {str(c) for c in commands.values() if (is_admin == c.is_admin) or not c.is_admin or is_admin}
+    return '\n'.join([str(c) for c in commands.values() if (is_admin == c.is_admin) or not c.is_admin or is_admin])
 
 
 add_command('enable', '_cmd_enable', 'Включить нотификации')
