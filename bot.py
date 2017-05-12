@@ -90,15 +90,15 @@ class BreakfastHandler(telepot.helper.ChatHandler):
     @no_args
     def _cmd_stats_last(self):
         last = max(statistics.keys())
-        yes = '\n'.join([describe_user(u) for u in statistics[last]['yes']])
-        no = '\n'.join([describe_user(u) for u in statistics[last]['no']])
+        yes = [describe_user(u) for u in statistics[last]['yes']]
+        no = [describe_user(u) for u in statistics[last]['no']]
 
-        text = 'Придут:\n{}\nНе придут:{}'.format(yes, no)
+        text = 'Придут ({}):\n{}\nНе придут({}):\n{}'.format(len(yes), '\n'.join(yes), len(no), '\n'.join(no))
         if last + '_result' in statistics:
             last += '_result'
-            yes = '\n'.join([describe_user(u) for u in statistics[last]['yes']])
-            no = '\n'.join([describe_user(u) for u in statistics[last]['no']])
-            text += '\n\nПришли:\n{}\nНе пришли:{}'.format(yes, no)
+            yes = [describe_user(u) for u in statistics[last]['yes']]
+            no = [describe_user(u) for u in statistics[last]['no']]
+            text += '\n\nПришли ({}):\n{}\nНе пришли ({}):\n{}'.format(len(yes), '\n'.join(yes), len(no), '\n'.join(no))
 
         self.sender.sendMessage(text)
 
