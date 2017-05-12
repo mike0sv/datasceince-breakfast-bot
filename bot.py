@@ -157,7 +157,6 @@ class BreakfastHandler(telepot.helper.ChatHandler):
             self.editor.editMessageReplyMarkup(reply_markup=None)
             self.editor = None
             self.msg_id = None
-            self.question = None
             users[self.id]['msg_id'] = None
             users.save()
 
@@ -174,6 +173,7 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         statistics.save()
 
     def on_message(self, msg):
+        print(self.question)
         if 'new_chat_member' in msg:
             return
             # pprint(msg)
