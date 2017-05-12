@@ -6,6 +6,7 @@ from telepot.delegate import include_callback_query_chat_id, pave_event_space, p
 from telepot.helper import Editor
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 
+from commands import make_help
 from utils import PersistedDict
 from scheduler import Event
 
@@ -36,6 +37,7 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         self.last_date = None
         global handlers
         handlers[self.id] = self
+        self.commands = {'disable': self._cmd_disable}
         if self.id not in users:
             self.register_user()
 
@@ -44,6 +46,25 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         else:
             self.msg_id = users[self.id]['msg_id']
             self.editor = Editor(self.bot, self.msg_id)
+
+    def _cmd_disable(self):
+        users[self.id]['disabled'] = True
+        users.save()
+        self.sender.sendMessage('Нотификации выключены')
+
+    def _cmd_enable(self):
+        users[self.id]['disabled'] = False
+        users.save()
+        self.sender.sendMessage('Нотификации включены')
+
+    def _cmd_stats(self):
+        self.sender.sendMessage(str(statistics))
+
+    def _cmd_help(self):
+        self.sender.sendMessage(make_help(self._is_admin()))
+
+    def _is_admin(self):
+        return users[self.id]['admin']
 
     def register_user(self):
         data = self.bot.getChat(self.id)
@@ -85,8 +106,15 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         if telepot.flavor(msg) == 'callback_query':
             self.on_callback_query(msg)
         else:
-            if 'text' in msg and msg['text'] == '/stats':
-                self.sender.sendMessage(str(statistics))
+            if 'text' in msg:
+                text = msg['text']
+                if text.startswith('/'):
+                    cmd = text.split(' ')[0][1:]
+                    if cmd in self.commands:
+                        self.commands[cmd]()
+                    else:
+                        self._cmd_help()
+                        # self.sender.sendMessage(str(statistics))
 
 
 def notify_all():
