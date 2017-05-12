@@ -102,6 +102,14 @@ class BreakfastHandler(telepot.helper.ChatHandler):
 
         self.sender.sendMessage(text)
 
+    @no_args
+    def _cmd_run_notify(self):
+        notify_all()
+
+    @no_args
+    def _cmd_run_attend(self):
+        attend_all()
+
     def _cmd_make_admin(self, text):
         try:
             other_id = int(text.split(' ')[1])
