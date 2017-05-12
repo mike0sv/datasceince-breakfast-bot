@@ -25,6 +25,16 @@ handlers = dict()
 notification_cron = '30 21 * * *'
 
 
+def describe_user(uid):
+    if uid in users:
+        u = users[uid]
+        return '{id} {username} {first} {last}'.format(id=uid, username=u.get('username', '???'),
+                                                       first=u.get('first_name', '???'),
+                                                       last=u.get('last_name', '???'))
+    else:
+        return '????????'
+
+
 class BreakfastHandler(telepot.helper.ChatHandler):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[
         InlineKeyboardButton(text='Yes', callback_data='yes'),
@@ -62,6 +72,12 @@ class BreakfastHandler(telepot.helper.ChatHandler):
 
     def _cmd_help(self):
         self.sender.sendMessage(make_help(self._is_admin()))
+
+    def _cmd_stats_last(self):
+        last = max(statistics.keys())
+        yes = '\n'.join([describe_user(u) for u in statistics[last]['yes']])
+        no = '\n'.join([describe_user(u) for u in statistics[last]['no']])
+        self.sender.sendMessage('Придут:\n{}\nНе придут:{}'.format(yes, no))
 
     def _is_admin(self):
         return users[self.id]['admin']

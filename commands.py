@@ -28,7 +28,8 @@ def make_help(is_admin):
 
 add_command('enable', '_cmd_enable', 'Включить нотификации')
 add_command('disable', '_cmd_disable', 'Выключить нотификации')
-add_command('stats', '_cmd_stats', 'Показать статистику', True)
+add_command('stats_raw', '_cmd_stats', 'Показать статистику в json', True)
+add_command('stats', '_cmd_stats_last', 'Показать статистику', True)
 
 
 def main():

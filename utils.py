@@ -33,6 +33,9 @@ class PersistedDict:
             with self.lock, open(self.path, 'r', encoding='utf8') as fin:
                 self.data = json.load(fin)
 
+    def keys(self):
+        return self.data.keys()
+
     def save(self):
         with self.lock, open(self.path, 'w', encoding='utf8') as fout:
             json.dump(self.data, fout, ensure_ascii=False)
