@@ -36,8 +36,8 @@ def describe_user(uid):
 
 
 def no_args(method):
-    def tmp(*args, **kwargs):
-        return method()
+    def tmp(self, *args, **kwargs):
+        return method(self)
 
     return tmp
 
