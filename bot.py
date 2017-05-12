@@ -57,8 +57,8 @@ class BreakfastHandler(telepot.helper.ChatHandler):
 
         self.commands = make_commands(self, self._is_admin())
 
-    @staticmethod
-    def no_args(method):
+    @classmethod
+    def no_args(cls, method):
         def tmp(*args, **kwargs):
             return method()
 
