@@ -33,6 +33,7 @@ add_command('stats', '_cmd_stats_last', 'Показать статистику')
 add_command('make_admin', '_cmd_make_admin', 'Сделать админом', True)
 add_command('run_notify', '_cmd_run_notify', 'Запустить нотификации', True)
 add_command('run_attend', '_cmd_run_attend', 'Запустить опрос', True)
+add_command('users', '_cmd_show_users', 'Список подписавшихся', True)
 
 
 def main():

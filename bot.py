@@ -26,12 +26,16 @@ notification_cron = '30 21 * * *'
 result_cron = '0 13 * * *'
 
 
-def describe_user(uid):
+def describe_user(uid, show_id=False):
     if uid in users:
         u = users[uid]
-        return '{id} {username} {first} {last}'.format(id=uid, username=u.get('username', '???'),
-                                                       first=u.get('first_name', '???'),
-                                                       last=u.get('last_name', '???'))
+        descr = '{username} {first} {last}'.format(username=u.get('username', '???'),
+                                                   first=u.get('first_name', '???'),
+                                                   last=u.get('last_name', '???'))
+        if show_id:
+            return '{id} '.format(id=uid) + descr
+        else:
+            return descr
     else:
         return '????????'
 
@@ -101,6 +105,10 @@ class BreakfastHandler(telepot.helper.ChatHandler):
             text += '\n\nПришли ({}):\n{}\nНе пришли ({}):\n{}'.format(len(yes), '\n'.join(yes), len(no), '\n'.join(no))
 
         self.sender.sendMessage(text)
+
+    @no_args
+    def _cmd_show_users(self):
+        self.sender.sendMessage('\n'.join([describe_user(u, True) for u in users]))
 
     @no_args
     def _cmd_run_notify(self):
