@@ -202,7 +202,7 @@ def notify_all():
 
 
 def last_stat():
-    return max(map(int, filter(lambda x: not x.endswith('result'), statistics.keys())))
+    return str(max(map(int, filter(lambda x: not x.endswith('result'), statistics.keys()))))
 
 
 def attend_all():
