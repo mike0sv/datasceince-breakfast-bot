@@ -1,6 +1,3 @@
-from bot import BreakfastHandler
-
-
 class Command:
     def __init__(self, name, method, description, is_admin=False):
         self.name = name
