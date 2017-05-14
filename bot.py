@@ -250,5 +250,4 @@ def main():
 
 
 if __name__ == '__main__':
-    # main()
-    print((datetime.fromtimestamp(time()) + timedelta(days=1)).strftime('%d-%m-%Y'))
+    main()
