@@ -28,6 +28,9 @@ class PersistedDict:
     def __str__(self):
         return json.dumps(self.data)
 
+    def __len__(self):
+        return len(self.data)
+
     def load(self):
         if os.path.exists(self.path):
             with self.lock, open(self.path, 'r', encoding='utf8') as fin:

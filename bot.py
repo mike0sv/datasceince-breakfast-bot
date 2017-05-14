@@ -1,5 +1,6 @@
 import sys
 import traceback
+from datetime import datetime, timedelta
 from time import time
 
 import telepot
@@ -22,9 +23,9 @@ statistics = PersistedDict('statistics.json')
 # bot = telepot.Bot(token)
 handlers = dict()
 
-# notification_cron = '30 21 * * 1'
-notification_cron = '0 22 * * *'
-result_cron = '0 13 * * *'
+notification_cron = '0 21 * * 1'
+# notification_cron = '0 22 * * *'
+result_cron = '0 13 * * 2'
 
 
 def describe_user(uid, show_id=False):
@@ -94,11 +95,16 @@ class BreakfastHandler(telepot.helper.ChatHandler):
 
     @no_args
     def _cmd_stats_last(self):
+        if len(statistics) < 1:
+            self.sender.sendMessage('Завтраков еще не было')
+            return
         last = last_stat()
         yes = [describe_user(u) for u in statistics[last]['yes']]
         no = [describe_user(u) for u in statistics[last]['no']]
 
-        text = 'Придут ({}):\n{}\nНе придут({}):\n{}'.format(len(yes), '\n'.join(yes), len(no), '\n'.join(no))
+        text = 'Завтрак {}\nПридут ({}):\n{}\nНе придут({}):\n{}'.format(
+            (datetime.fromtimestamp(last) + timedelta(days=1)).strftime('%d-%m-%Y'), len(yes), '\n'.join(yes), len(no),
+            '\n'.join(no))
         if last + '_result' in statistics:
             last += '_result'
             yes = [describe_user(u) for u in statistics[last]['yes']]
@@ -244,4 +250,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    print((datetime.fromtimestamp(time()) + timedelta(days=1)).strftime('%d-%m-%Y'))
