@@ -28,12 +28,15 @@ def make_help(is_admin):
 
 add_command('enable', '_cmd_enable', 'Включить нотификации')
 add_command('disable', '_cmd_disable', 'Выключить нотификации')
-add_command('stats_raw', '_cmd_stats', 'Показать статистику в json', True)
+add_command('stats_raw', '_cmd_stats_raw', 'Показать статистику в json', True)
 add_command('stats', '_cmd_stats_last', 'Показать статистику')
 add_command('make_admin', '_cmd_make_admin', 'Сделать админом', True)
 add_command('run_notify', '_cmd_run_notify', 'Запустить нотификации', True)
 add_command('run_attend', '_cmd_run_attend', 'Запустить опрос', True)
 add_command('users', '_cmd_show_users', 'Список подписавшихся', True)
+add_command('users_raw', '_cmd_show_users_raw', 'Данные по подписавшимся', True)
+add_command('change', '_cmd_manual_change',
+            'Сменить ответ на последний вопрос (или ответить "да", если вопроса не было)')
 
 
 def main():

@@ -28,6 +28,9 @@ class PersistedDict:
     def __str__(self):
         return json.dumps(self.data)
 
+    def __repr__(self):
+        return self.data.__repr__()
+
     def __len__(self):
         return len(self.data)
 

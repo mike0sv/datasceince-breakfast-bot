@@ -1,6 +1,7 @@
 import sys
 import traceback
 from datetime import datetime, timedelta
+from pprint import pformat
 from time import time
 
 import telepot
@@ -86,8 +87,8 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         self.sender.sendMessage('Нотификации включены')
 
     @no_args
-    def _cmd_stats(self):
-        self.sender.sendMessage(str(statistics))
+    def _cmd_stats_raw(self):
+        self.sender.sendMessage(pformat(statistics.data))
 
     @no_args
     def _cmd_help(self):
@@ -122,8 +123,44 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         self.sender.sendMessage('\n'.join([describe_user(u, True) for u in users]))
 
     @no_args
+    def _cmd_show_users_raw(self):
+        text = pformat(users.data)
+        self.sender.sendMessage(text)
+
+    @no_args
     def _cmd_run_notify(self):
         notify_all()
+
+    @no_args
+    def _cmd_manual_change(self):
+        last_n = last_stat()
+        last_a = last_n + '_result'
+        if last_a in statistics:
+            with statistics.lock:
+                result = statistics.data[last_a]
+                if self.id in result['yes']:
+                    result['yes'].remove(self.id)
+                    result['no'].append(self.id)
+                    text = 'Вы не ходили на завтрак'
+                else:
+                    if self.id in result['no']:
+                        result['no'].remove(self.id)
+                    result['yes'].append(self.id)
+                    text = 'Вы ходили на завтрак'
+        else:
+            with statistics.lock:
+                result = statistics.data[last_n]
+                if self.id in result['yes']:
+                    result['yes'].remove(self.id)
+                    result['no'].append(self.id)
+                    text = 'Вы не пойдете на завтрак'
+                else:
+                    if self.id in result['no']:
+                        result['no'].remove(self.id)
+                    result['yes'].append(self.id)
+                    text = 'Вы пойдете на завтрак'
+
+        self.sender.sendMessage(text)
 
     @no_args
     def _cmd_run_attend(self):
