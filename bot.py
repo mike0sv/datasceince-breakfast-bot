@@ -101,9 +101,13 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         last = last_stat()
         yes = [describe_user(u) for u in statistics[last]['yes']]
         no = [describe_user(u) for u in statistics[last]['no']]
+        try:
+            date = (datetime.fromtimestamp(float(last)) + timedelta(days=1)).strftime('%d-%m-%Y')
+        except:
+            date = '???'
 
         text = 'Завтрак {}\nПридут ({}):\n{}\nНе придут({}):\n{}'.format(
-            (datetime.fromtimestamp(last) + timedelta(days=1)).strftime('%d-%m-%Y'), len(yes), '\n'.join(yes), len(no),
+            date, len(yes), '\n'.join(yes), len(no),
             '\n'.join(no))
         if last + '_result' in statistics:
             last += '_result'
