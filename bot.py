@@ -31,9 +31,9 @@ result_cron = '0 13 * * 2'
 def describe_user(uid, show_id=False):
     if uid in users:
         u = users[uid]
-        descr = '{username} {first} {last}'.format(username=u.get('username', '???'),
-                                                   first=u.get('first_name', '???'),
-                                                   last=u.get('last_name', '???'))
+        descr = '@{username} {first} {last}'.format(username=u.get('username', '???'),
+                                                    first=u.get('first_name', ''),
+                                                    last=u.get('last_name', ''))
         if show_id:
             return '{id} '.format(id=uid) + descr
         else:
