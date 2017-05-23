@@ -259,7 +259,10 @@ def notify_all():
     statistics.save()
     for chat, handler in handlers.items():
         if not users[chat]['disabled']:
-            handler.notify(now)
+            try:
+                handler.notify(now)
+            except:
+                print(chat, sys.exc_info())
 
 
 def last_stat():
@@ -272,7 +275,10 @@ def attend_all():
     statistics.save()
     for chat, handler in handlers.items():
         if chat in statistics[last]['yes']:
-            handler.attend(last)
+            try:
+                handler.attend(last)
+            except:
+                print(chat, sys.exc_info())
 
 
 def main():
