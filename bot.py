@@ -24,7 +24,7 @@ statistics = PersistedDict('statistics.json')
 # bot = telepot.Bot(token)
 handlers = dict()
 
-notification_cron = '0 21 * * 1'
+notification_cron = '0 19 * * 1'
 # notification_cron = '0 22 * * *'
 result_cron = '0 13 * * 2'
 
