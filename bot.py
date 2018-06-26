@@ -2,7 +2,7 @@ import sys
 import traceback
 from datetime import datetime, timedelta
 from pprint import pformat
-from time import time
+from time import time, sleep
 
 import telepot
 from telepot.delegate import include_callback_query_chat_id, pave_event_space, per_chat_id, create_open
@@ -88,7 +88,8 @@ class BreakfastHandler(telepot.helper.ChatHandler):
 
     @no_args
     def _cmd_stats_raw(self):
-        self.sender.sendMessage(pformat(statistics.data))
+        self._send_long_message(pformat(statistics.data))
+        # self.sender.sendMessage(pformat(statistics.data))
 
     @no_args
     def _cmd_help(self):
@@ -120,12 +121,15 @@ class BreakfastHandler(telepot.helper.ChatHandler):
 
     @no_args
     def _cmd_show_users(self):
-        self.sender.sendMessage('\n'.join([describe_user(u, True) for u in users]))
+        text = '\n'.join([describe_user(u, True) for u in users])
+        # self.sender.sendMessage(text)
+        self._send_long_message(text)
 
     @no_args
     def _cmd_show_users_raw(self):
         text = pformat(users.data)
-        self.sender.sendMessage(text)
+        # self.sender.sendMessage(text)
+        self._send_long_message(text)
 
     @no_args
     def _cmd_run_notify(self):
@@ -227,6 +231,12 @@ class BreakfastHandler(telepot.helper.ChatHandler):
         statistics[date][query_data].append(self.id)
         users.save()
         statistics.save()
+
+    def _send_long_message(self, text, max_size=4000, cooldown=1):
+        while text:
+            send, text = text[:max_size], text[max_size:]
+            self.sender.sendMessage(send)
+            sleep(cooldown)
 
     def on_message(self, msg):
         try:
